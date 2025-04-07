@@ -2,6 +2,7 @@ const express = require("express");
 
 const authRoutes = require("./routes/authRoutes");
 const flowersRoutes = require("./routes/flowersRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
@@ -31,5 +32,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/flowers", flowersRoutes);
+app.use("/api/cart", cartRoutes);
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
