@@ -111,3 +111,61 @@ exports.deleteCartItem = async (req, res) => {
     });
   }
 };
+
+exports.updateCartItem = async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+  console.log(id, quantity);
+  try {
+    const cartItem = await Cart.findByPk(id);
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Элемент корзины не найден" });
+    }
+
+    const flower = await Flowers.findByPk(cartItem.flowerId);
+    if (!flower) {
+      await Cart.destroy({ where: { id: id } });
+      return res.status(400).json({ message: "Товар больше не доступен" });
+    }
+
+    if (
+      typeof quantity !== "number" ||
+      quantity <= 0 ||
+      quantity > flower.stockQuantity
+    ) {
+      return res.status(400).json({ message: "Неверное количество товара" });
+    }
+
+    const updated = await Cart.update(
+      { quantity: quantity, amount: quantity * flower.price },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+
+    // Fetch and return the updated item with flower details
+    const updatedCartItem = await Cart.findByPk(id, {
+      include: [
+        {
+          model: Flowers,
+          as: "flower", // MUST match the alias in your association
+          attributes: ["id", "title", "price", "photo"], // Specify attributes you want
+        },
+      ],
+    });
+
+    res.status(200).json({
+      message: "Элемент корзины обновлен",
+      cartItem: updatedCartItem,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Ошибка при обновлении элемента корзины",
+      error: error.message,
+    });
+  }
+};

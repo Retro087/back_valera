@@ -62,31 +62,29 @@ exports.getAllFlowers = async (req, res) => {
 // Получение товара по ID
 exports.getFlowerById = async (req, res) => {
   const { id } = req.params;
-  const userId = req.body.userId;
-  console.log(req.body);
-  try {
-    const flower = await Flowers.findByPk(id);
+  const userId = req.user?.id;
 
+  try {
+    let flower = await Flowers.findByPk(id);
     if (!flower) {
       return res.status(404).json({ message: "Товар не найден" });
     }
 
     if (userId) {
-      const flowerInCart = await Cart.findOne({
+      const inCart = await Cart.findOne({
         where: {
-          flowerId: id,
+          flowerId: flower.id,
           userId: userId,
         },
       });
 
-      if (flowerInCart) {
-        const item = {
-          ...flower,
+      if (inCart) {
+        flower = {
+          ...flower.dataValues,
           inCart: true,
-          quantityInCart: flowerInCart.quantity,
+          cartId: inCart.id,
+          quantityInCart: inCart.quantity,
         };
-
-        flower = item;
       }
     }
 

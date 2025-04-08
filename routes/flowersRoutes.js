@@ -13,6 +13,6 @@ const {
 // Защита всех маршрутов товаров
 
 router.get("/", getAllFlowers);
-router.get("/:id", getFlowerById);
+router.get("/:id", checkAuth, getFlowerById);
 
 module.exports = router;
