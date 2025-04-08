@@ -1,5 +1,6 @@
 const { Sequelize } = require("sequelize");
 const Flowers = require("../models/Flowers");
+const Cart = require("../models/Cart");
 const { Op } = Sequelize; // Import Op from Sequelize
 
 // Получение списка всех товаров (с фильтрацией, пагинацией, и поиском)
@@ -61,12 +62,32 @@ exports.getAllFlowers = async (req, res) => {
 // Получение товара по ID
 exports.getFlowerById = async (req, res) => {
   const { id } = req.params;
-
+  const userId = req.body.userId;
+  console.log(req.body);
   try {
     const flower = await Flowers.findByPk(id);
 
     if (!flower) {
       return res.status(404).json({ message: "Товар не найден" });
+    }
+
+    if (userId) {
+      const flowerInCart = await Cart.findOne({
+        where: {
+          flowerId: id,
+          userId: userId,
+        },
+      });
+
+      if (flowerInCart) {
+        const item = {
+          ...flower,
+          inCart: true,
+          quantityInCart: flowerInCart.quantity,
+        };
+
+        flower = item;
+      }
     }
 
     res.status(200).json(flower);

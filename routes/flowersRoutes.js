@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { authenticateToken } = require("../middleware/authMiddleware");
+const {
+  authenticateToken,
+  checkAuth,
+} = require("../middleware/authMiddleware");
 const {
   getAllFlowers,
   getFlowerById,
