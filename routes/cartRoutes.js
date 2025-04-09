@@ -5,6 +5,7 @@ const { authenticateToken } = require("../middleware/authMiddleware");
 
 // API endpoint for get cart
 router.get("/:userId", cartController.getCart);
+router.get("/:flowerId", authenticateToken, cartController.checkInCart);
 
 // API endpoint for add to cart
 router.post("/", cartController.addToCart);

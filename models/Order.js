@@ -11,7 +11,7 @@ const Order = sequelize.define("Order", {
     allowNull: false,
   },
   items: {
-    type: DataTypes.TEXT,
+    type: DataTypes.JSON,
     allowNull: false,
   },
   paymentId: {

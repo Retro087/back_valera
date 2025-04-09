@@ -45,6 +45,10 @@ exports.addToCart = async (req, res) => {
       return res.status(404).json({ message: "Товар не найден" });
     }
 
+    if (flower.quantity === 0 || flower.quantity < quantity) {
+      return res.status(404).json({ message: "Неверное количество" });
+    }
+
     const cartFlower = await Cart.findOne({
       where: {
         userId,
@@ -167,5 +171,33 @@ exports.updateCartItem = async (req, res) => {
       message: "Ошибка при обновлении элемента корзины",
       error: error.message,
     });
+  }
+};
+
+exports.checkInCart = async (req, res) => {
+  const userId = req.user.id; // Or however you get the user ID
+  const { flowerId } = req.params; // Or req.body, depending on how you send flowerId
+
+  try {
+    const cartItem = await Cart.findOne({
+      where: {
+        userId: userId,
+        flowerId: flowerId,
+      },
+    });
+
+    if (cartItem) {
+      return res.status(200).json({ inCart: true, cartItem: cartItem }); // Item is in cart
+    } else {
+      return res.status(200).json({ inCart: false, cartItem: null }); // Item is not in cart
+    }
+  } catch (error) {
+    console.error("Ошибка при проверке наличия в корзине (API):", error);
+    return res
+      .status(500)
+      .json({
+        message: "Ошибка при проверке наличия в корзине",
+        error: error.message,
+      });
   }
 };
